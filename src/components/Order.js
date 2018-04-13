@@ -7,7 +7,10 @@ export default class Order extends Component {
   renderOrder = key => {
     const fish = this.props.fishes[key];
     const count = this.props.order[key];
-    const isAvailable = fish.status === 'available';
+    const isAvailable = fish && fish.status === 'available';
+    // make sure the fish is loaded from firebase before returning
+   if (!fish) return null;
+
     if(!isAvailable){
       return <li key={key}>{fish ? fish.name : 'fish' } is no longer available</li>
     }
@@ -23,6 +26,7 @@ export default class Order extends Component {
       const fish = this.props.fishes[key];
       const count = this.props.order[key];
       const isAvailable = fish && fish.status === "available";
+
       if (isAvailable) {
         return prevTotal + count * fish.price;
       }

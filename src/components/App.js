@@ -4,12 +4,41 @@ import Order from "./Order";
 import Inventory from "./Inventory";
 import sampleFishes from "../sample-fishes"
 import Fish from './Fish';
+import base from '../base';
+
 
 class App extends React.Component {
   state = {
     fishes: {},
     order: {}
   };
+
+  componentDidMount() {
+    const { params } = this.props.match
+    // first reinstate our local storage. On refresh, the local storage disappears.
+    const localStorageRef = localStorage.getItem(params.storeId)
+    console.log(localStorageRef)
+    if(localStorageRef){
+      this.setState({ order: JSON.parse(localStorageRef)})
+    }
+    this.ref = base.syncState(`${params.storeId}/fishes`, {
+      context: this,
+      state: 'fishes'
+    });
+  }
+
+  componentDidUpdate() {
+    const { params } = this.props.match
+    console.log(this.state.order);
+    console.log('Updated!')
+    localStorage.setItem(`${params.storeId}`, JSON.stringify(this.state.order));
+  }
+
+  //clean up any memory issues that may happen from going back and forth on pages
+  componentWillUnmount() {
+    console.log('unmounting')
+    base.removeBinding(this.ref)
+  }
 
   addFish = fish => {
     // 1. Take a copy of the existing state - never mutate state directly
@@ -21,6 +50,15 @@ class App extends React.Component {
       fishes: fishes
     });
   };
+
+  updateFish = (key, updatedFish) => {
+    // 1. take a copy of the current state
+    const fishes = { ...this.state.fishes };
+    // 2. update the state
+    fishes[key] = updatedFish;
+    // 3. Set that to state
+    this.setState({ fishes: fishes })
+  }
 
   loadSampleFishes = (event) => {
     event.preventDefault();
@@ -46,7 +84,7 @@ class App extends React.Component {
           </ul>
         </div>
         <Order fishes={this.state.fishes} order={this.state.order}/>
-        <Inventory addFish={this.addFish} loadSampleFishes={this.loadSampleFishes} />
+        <Inventory addFish={this.addFish} updateFish={this.updateFish} loadSampleFishes={this.loadSampleFishes} fishes={this.state.fishes}/>
       </div>
     );
   }
