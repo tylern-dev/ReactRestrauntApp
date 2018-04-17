@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from 'react';
-
+import PropTypes from 'prop-types';
 
 // this function lives in a helper file
 import { getFunName } from '../helpers';
 
 class StorePicker extends Component {
-  
+  static propTypes = {
+    history: PropTypes.object.isRequired
+  }
   // selecting the input from the input form field
   myInput = React.createRef();
 
@@ -16,7 +18,7 @@ class StorePicker extends Component {
     const store = this.myInput.value.value
     //change the page to /store/Whatever-they-enter
     this.props.history.push(`/store/${store}`)
-    
+
 
   }
 
